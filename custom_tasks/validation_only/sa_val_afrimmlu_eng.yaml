@@ -1,0 +1,3 @@
+include: _sa_val_afrimmlu_common.yaml
+task: sa_val_afrimmlu_eng
+dataset_name: eng

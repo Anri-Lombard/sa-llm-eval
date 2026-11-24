@@ -1,0 +1,4 @@
+include: sib
+task: sib_tsn_prompt_3
+dataset_name: tsn_Latn
+doc_to_text: "You are an assistant able to classify topics in texts. \n\nGiven the categories science/technology, travel, politics, sports, health, entertainment, or geography; what is the topic of the Tswana statement below? Return only the category. \n\ntext: {{text}} \\category:\n\n"

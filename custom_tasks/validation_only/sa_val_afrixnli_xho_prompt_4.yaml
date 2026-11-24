@@ -1,0 +1,6 @@
+include: _sa_val_afrixnli_common.yaml
+task: sa_val_afrixnli_xho_prompt_4
+dataset_name: xho
+doc_to_text: "You are an expert in Natural Language Inference (NLI) specializing in the Xhosa language.\nAnalyze the premise and hypothesis given in Xhosa, and determine the relationship between them.\n Respond with one of the following options: 'entailment', 'contradiction', or 'neutral'. \n\nPremise: {{premise}} \nHypothesis: {{hypothesis}}"
+doc_to_target: !function utils.xnli_target_enc
+doc_to_choice: ['entailment', 'neutral', 'contradiction']

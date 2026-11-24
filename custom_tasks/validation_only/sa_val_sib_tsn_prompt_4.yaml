@@ -1,0 +1,4 @@
+include: _sa_val_sib_common.yaml
+task: sa_val_sib_tsn_prompt_4
+dataset_name: tsn_Latn
+doc_to_text: "Label the following text as science/technology, travel, politics, sports, health, entertainment, or geography. Provide only the category as your response. \n\ntext: {{text}} \\category: \n\n"

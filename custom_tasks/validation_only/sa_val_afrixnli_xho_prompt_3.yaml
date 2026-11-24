@@ -1,0 +1,6 @@
+include: _sa_val_afrixnli_common.yaml
+task: sa_val_afrixnli_xho_prompt_3
+dataset_name: xho
+doc_to_text: "Given the following premise and hypothesis in Xhosa, identify if the premise entails, contradicts, or is neutral towards the hypothesis. Please respond with exact 'entailment', 'contradiction', or 'neutral'. \n\nPremise: {{premise}} \nHypothesis: {{hypothesis}}"
+doc_to_target: !function utils.xnli_target_enc
+doc_to_choice: ['entailment', 'neutral', 'contradiction']

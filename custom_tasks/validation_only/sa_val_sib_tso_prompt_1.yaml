@@ -1,0 +1,4 @@
+include: _sa_val_sib_common.yaml
+task: sa_val_sib_tso_prompt_1
+dataset_name: tso_Latn
+doc_to_text: "Given the categories science/technology, travel, politics, sports, health, entertainment, or geography; what category does the text: '{{text}}' belong to: \n\n"

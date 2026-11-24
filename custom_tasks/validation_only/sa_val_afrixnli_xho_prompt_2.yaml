@@ -1,0 +1,6 @@
+include: _sa_val_afrixnli_common.yaml
+task: sa_val_afrixnli_xho_prompt_2
+dataset_name: xho
+doc_to_text: "{{premise}}\nQuestion: {{hypothesis}} True, False, or Neither?\nAnswer:"
+doc_to_target: !function utils.xnli_target_tfn
+doc_to_choice: ['True', 'Neither', 'False']

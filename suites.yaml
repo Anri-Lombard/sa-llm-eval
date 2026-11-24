@@ -1,0 +1,368 @@
+# South African language evaluation suites for continual pretraining (CPT).
+#
+# Conventions:
+# - Validation suites (`val_*`) touch ONLY validation splits (safe for mixture/checkpoint selection).
+# - Official test suites (`test_*`) touch held-out test splits; run once per shortlisted checkpoint.
+# - `afrixnli_*_prompt_1` is excluded everywhere because lm-eval <= 0.4.12 leaves `{premise}` and
+#   `{hypothesis}` unrendered in single braces.
+# - `belebele_nso_*` (Sepedi) and `sib_tsn_*` (Setswana) are provided via `custom_tasks/` because
+#   upstream AfroBench omits them even though both languages exist in facebook/belebele and Davlan/sib200.
+
+languages:
+  all_sa: [afr, eng, nbl, nso, sot, ssw, tsn, tso, ven, xho, zul]
+  sa_only: [afr, nbl, nso, sot, ssw, tsn, tso, ven, xho, zul]
+
+suites:
+  val_discriminative:
+    description: Validation-only discriminative tasks for CPT mixture and checkpoint selection (no test splits accessed).
+    split: validation
+    default_fewshot: 0
+    tasks_by_language:
+      afr:
+        - sa_val_sib_afr_prompt_1
+        - sa_val_sib_afr_prompt_2
+        - sa_val_sib_afr_prompt_3
+        - sa_val_sib_afr_prompt_4
+        - sa_val_sib_afr_prompt_5
+      eng:
+        - sa_val_sib_eng_prompt_1
+        - sa_val_sib_eng_prompt_2
+        - sa_val_sib_eng_prompt_3
+        - sa_val_sib_eng_prompt_4
+        - sa_val_sib_eng_prompt_5
+        - sa_val_afrixnli_eng_prompt_2
+        - sa_val_afrixnli_eng_prompt_3
+        - sa_val_afrixnli_eng_prompt_4
+        - sa_val_afrixnli_eng_prompt_5
+        - sa_val_afrimmlu_eng
+        - sa_val_injongointent_eng_prompt_1
+      nso:
+        - sa_val_sib_nso_prompt_1
+        - sa_val_sib_nso_prompt_2
+        - sa_val_sib_nso_prompt_3
+        - sa_val_sib_nso_prompt_4
+        - sa_val_sib_nso_prompt_5
+      sot:
+        - sa_val_sib_sot_prompt_1
+        - sa_val_sib_sot_prompt_2
+        - sa_val_sib_sot_prompt_3
+        - sa_val_sib_sot_prompt_4
+        - sa_val_sib_sot_prompt_5
+        - sa_val_afrixnli_sot_prompt_2
+        - sa_val_afrixnli_sot_prompt_3
+        - sa_val_afrixnli_sot_prompt_4
+        - sa_val_afrixnli_sot_prompt_5
+        - sa_val_afrimmlu_sot
+        - sa_val_injongointent_sot_prompt_1
+      ssw:
+        - sa_val_sib_ssw_prompt_1
+        - sa_val_sib_ssw_prompt_2
+        - sa_val_sib_ssw_prompt_3
+        - sa_val_sib_ssw_prompt_4
+        - sa_val_sib_ssw_prompt_5
+      tsn:
+        - sa_val_sib_tsn_prompt_1
+        - sa_val_sib_tsn_prompt_2
+        - sa_val_sib_tsn_prompt_3
+        - sa_val_sib_tsn_prompt_4
+        - sa_val_sib_tsn_prompt_5
+      tso:
+        - sa_val_sib_tso_prompt_1
+        - sa_val_sib_tso_prompt_2
+        - sa_val_sib_tso_prompt_3
+        - sa_val_sib_tso_prompt_4
+        - sa_val_sib_tso_prompt_5
+      xho:
+        - sa_val_sib_xho_prompt_1
+        - sa_val_sib_xho_prompt_2
+        - sa_val_sib_xho_prompt_3
+        - sa_val_sib_xho_prompt_4
+        - sa_val_sib_xho_prompt_5
+        - sa_val_afrixnli_xho_prompt_2
+        - sa_val_afrixnli_xho_prompt_3
+        - sa_val_afrixnli_xho_prompt_4
+        - sa_val_afrixnli_xho_prompt_5
+        - sa_val_afrimmlu_xho
+        - sa_val_injongointent_xho_prompt_1
+      zul:
+        - sa_val_sib_zul_prompt_1
+        - sa_val_sib_zul_prompt_2
+        - sa_val_sib_zul_prompt_3
+        - sa_val_sib_zul_prompt_4
+        - sa_val_sib_zul_prompt_5
+        - sa_val_afrixnli_zul_prompt_2
+        - sa_val_afrixnli_zul_prompt_3
+        - sa_val_afrixnli_zul_prompt_4
+        - sa_val_afrixnli_zul_prompt_5
+        - sa_val_afrimmlu_zul
+        - sa_val_injongointent_zul_prompt_1
+
+  test_fast:
+    description: Fast 1-prompt-per-benchmark held-out test sweep across all SA discriminative tasks (5-shot).
+    split: test
+    default_fewshot: 5
+    tasks_by_language:
+      afr:
+        - belebele_afr_prompt_1
+        - sib_afr_prompt_1
+      eng:
+        - belebele_eng_prompt_1
+        - sib_eng_prompt_1
+        - afrixnli_eng_prompt_2
+        - afrimmlu_direct_eng_prompt_1
+        - uhura-arc-easy_en_prompt_1
+        - injongointent_eng_prompt_1
+      nso:
+        - belebele_nso_prompt_1
+        - sib_nso_prompt_1
+        - uhura-arc-easy_nso_prompt_1
+      sot:
+        - belebele_sot_prompt_1
+        - sib_sot_prompt_1
+        - afrixnli_sot_prompt_2
+        - afrimmlu_direct_sot_prompt_1
+        - injongointent_sot_prompt_1
+      ssw:
+        - belebele_ssw_prompt_1
+        - sib_ssw_prompt_1
+      tsn:
+        - belebele_tsn_prompt_1
+        - sib_tsn_prompt_1
+      tso:
+        - belebele_tso_prompt_1
+        - sib_tso_prompt_1
+      xho:
+        - belebele_xho_prompt_1
+        - sib_xho_prompt_1
+        - afrixnli_xho_prompt_2
+        - afrimmlu_direct_xho_prompt_1
+        - injongointent_xho_prompt_1
+      zul:
+        - belebele_zul_prompt_1
+        - sib_zul_prompt_1
+        - afrixnli_zul_prompt_2
+        - afrimmlu_direct_zul_prompt_1
+        - uhura-arc-easy_zu_prompt_1
+        - injongointent_zul_prompt_1
+
+  test_discriminative:
+    description: Full multi-prompt held-out test suite for SA discriminative AfroBench tasks (5-shot).
+    split: test
+    default_fewshot: 5
+    tasks_by_language:
+      afr:
+        - belebele_afr_prompt_1
+        - belebele_afr_prompt_2
+        - belebele_afr_prompt_3
+        - belebele_afr_prompt_4
+        - belebele_afr_prompt_5
+        - sib_afr_prompt_1
+        - sib_afr_prompt_2
+        - sib_afr_prompt_3
+        - sib_afr_prompt_4
+        - sib_afr_prompt_5
+      eng:
+        - belebele_eng_prompt_1
+        - belebele_eng_prompt_2
+        - belebele_eng_prompt_3
+        - belebele_eng_prompt_4
+        - belebele_eng_prompt_5
+        - sib_eng_prompt_1
+        - sib_eng_prompt_2
+        - sib_eng_prompt_3
+        - sib_eng_prompt_4
+        - sib_eng_prompt_5
+        - afrixnli_eng_prompt_2
+        - afrixnli_eng_prompt_3
+        - afrixnli_eng_prompt_4
+        - afrixnli_eng_prompt_5
+        - afrimmlu_direct_eng_prompt_1
+        - afrimmlu_direct_eng_prompt_2
+        - afrimmlu_direct_eng_prompt_3
+        - afrimmlu_direct_eng_prompt_4
+        - afrimmlu_direct_eng_prompt_5
+        - uhura-arc-easy_en_prompt_1
+        - uhura-arc-easy_en_prompt_2
+        - uhura-arc-easy_en_prompt_3
+        - uhura-arc-easy_en_prompt_4
+        - uhura-arc-easy_en_prompt_5
+        - injongointent_eng_prompt_1
+      nso:
+        - belebele_nso_prompt_1
+        - belebele_nso_prompt_2
+        - belebele_nso_prompt_3
+        - belebele_nso_prompt_4
+        - belebele_nso_prompt_5
+        - sib_nso_prompt_1
+        - sib_nso_prompt_2
+        - sib_nso_prompt_3
+        - sib_nso_prompt_4
+        - sib_nso_prompt_5
+        - uhura-arc-easy_nso_prompt_1
+        - uhura-arc-easy_nso_prompt_2
+        - uhura-arc-easy_nso_prompt_3
+        - uhura-arc-easy_nso_prompt_4
+        - uhura-arc-easy_nso_prompt_5
+      sot:
+        - belebele_sot_prompt_1
+        - belebele_sot_prompt_2
+        - belebele_sot_prompt_3
+        - belebele_sot_prompt_4
+        - belebele_sot_prompt_5
+        - sib_sot_prompt_1
+        - sib_sot_prompt_2
+        - sib_sot_prompt_3
+        - sib_sot_prompt_4
+        - sib_sot_prompt_5
+        - afrixnli_sot_prompt_2
+        - afrixnli_sot_prompt_3
+        - afrixnli_sot_prompt_4
+        - afrixnli_sot_prompt_5
+        - afrimmlu_direct_sot_prompt_1
+        - afrimmlu_direct_sot_prompt_2
+        - afrimmlu_direct_sot_prompt_3
+        - afrimmlu_direct_sot_prompt_4
+        - afrimmlu_direct_sot_prompt_5
+        - injongointent_sot_prompt_1
+      ssw:
+        - belebele_ssw_prompt_1
+        - belebele_ssw_prompt_2
+        - belebele_ssw_prompt_3
+        - belebele_ssw_prompt_4
+        - belebele_ssw_prompt_5
+        - sib_ssw_prompt_1
+        - sib_ssw_prompt_2
+        - sib_ssw_prompt_3
+        - sib_ssw_prompt_4
+        - sib_ssw_prompt_5
+      tsn:
+        - belebele_tsn_prompt_1
+        - belebele_tsn_prompt_2
+        - belebele_tsn_prompt_3
+        - belebele_tsn_prompt_4
+        - belebele_tsn_prompt_5
+        - sib_tsn_prompt_1
+        - sib_tsn_prompt_2
+        - sib_tsn_prompt_3
+        - sib_tsn_prompt_4
+        - sib_tsn_prompt_5
+      tso:
+        - belebele_tso_prompt_1
+        - belebele_tso_prompt_2
+        - belebele_tso_prompt_3
+        - belebele_tso_prompt_4
+        - belebele_tso_prompt_5
+        - sib_tso_prompt_1
+        - sib_tso_prompt_2
+        - sib_tso_prompt_3
+        - sib_tso_prompt_4
+        - sib_tso_prompt_5
+      xho:
+        - belebele_xho_prompt_1
+        - belebele_xho_prompt_2
+        - belebele_xho_prompt_3
+        - belebele_xho_prompt_4
+        - belebele_xho_prompt_5
+        - sib_xho_prompt_1
+        - sib_xho_prompt_2
+        - sib_xho_prompt_3
+        - sib_xho_prompt_4
+        - sib_xho_prompt_5
+        - afrixnli_xho_prompt_2
+        - afrixnli_xho_prompt_3
+        - afrixnli_xho_prompt_4
+        - afrixnli_xho_prompt_5
+        - afrimmlu_direct_xho_prompt_1
+        - afrimmlu_direct_xho_prompt_2
+        - afrimmlu_direct_xho_prompt_3
+        - afrimmlu_direct_xho_prompt_4
+        - afrimmlu_direct_xho_prompt_5
+        - injongointent_xho_prompt_1
+      zul:
+        - belebele_zul_prompt_1
+        - belebele_zul_prompt_2
+        - belebele_zul_prompt_3
+        - belebele_zul_prompt_4
+        - belebele_zul_prompt_5
+        - sib_zul_prompt_1
+        - sib_zul_prompt_2
+        - sib_zul_prompt_3
+        - sib_zul_prompt_4
+        - sib_zul_prompt_5
+        - afrixnli_zul_prompt_2
+        - afrixnli_zul_prompt_3
+        - afrixnli_zul_prompt_4
+        - afrixnli_zul_prompt_5
+        - afrimmlu_direct_zul_prompt_1
+        - afrimmlu_direct_zul_prompt_2
+        - afrimmlu_direct_zul_prompt_3
+        - afrimmlu_direct_zul_prompt_4
+        - afrimmlu_direct_zul_prompt_5
+        - uhura-arc-easy_zu_prompt_1
+        - uhura-arc-easy_zu_prompt_2
+        - uhura-arc-easy_zu_prompt_3
+        - uhura-arc-easy_zu_prompt_4
+        - uhura-arc-easy_zu_prompt_5
+        - injongointent_zul_prompt_1
+
+  test_math:
+    description: AfriMGSM chain-of-thought math (8-shot). Re-score outputs with scripts/rescore.py.
+    split: test
+    default_fewshot: 8
+    tasks_by_language:
+      eng: [afrimgsm_cot_eng_prompt_1]
+      sot: [afrimgsm_cot_sot_prompt_1]
+      xho: [afrimgsm_cot_xho_prompt_1]
+      zul: [afrimgsm_cot_zul_prompt_1]
+
+  test_translation:
+    description: FLORES-200 and NTREX-128 English<->SA translation (5-shot). Re-score FLORES with scripts/rescore.py.
+    split: test
+    default_fewshot: 5
+    tasks_by_language:
+      afr:
+        - flores_eng_Latn-afr_Latn_prompt_1
+        - flores_afr_Latn-eng_Latn_prompt_1
+        - ntrex_eng_Latn-afr_Latn_prompt_1
+        - ntrex_afr_Latn-eng_Latn_prompt_1
+      nso:
+        - flores_eng_Latn-nso_Latn_prompt_1
+        - flores_nso_Latn-eng_Latn_prompt_1
+        - ntrex_eng_Latn-nso_Latn_prompt_1
+        - ntrex_nso_Latn-eng_Latn_prompt_1
+      sot:
+        - flores_eng_Latn-sot_Latn_prompt_1
+        - flores_sot_Latn-eng_Latn_prompt_1
+      ssw:
+        - flores_eng_Latn-ssw_Latn_prompt_1
+        - flores_ssw_Latn-eng_Latn_prompt_1
+        - ntrex_eng_Latn-ssw_Latn_prompt_1
+        - ntrex_ssw_Latn-eng_Latn_prompt_1
+      tsn:
+        - flores_eng_Latn-tsn_Latn_prompt_1
+        - flores_tsn_Latn-eng_Latn_prompt_1
+        - ntrex_eng_Latn-tsn_Latn_prompt_1
+        - ntrex_tsn_Latn-eng_Latn_prompt_1
+      tso:
+        - flores_eng_Latn-tso_Latn_prompt_1
+        - flores_tso_Latn-eng_Latn_prompt_1
+      ven:
+        - ntrex_eng_Latn-ven_Latn_prompt_1
+        - ntrex_ven_Latn-eng_Latn_prompt_1
+      xho:
+        - flores_eng_Latn-xho_Latn_prompt_1
+        - flores_xho_Latn-eng_Latn_prompt_1
+        - ntrex_eng_Latn-xho_Latn_prompt_1
+        - ntrex_xho_Latn-eng_Latn_prompt_1
+      zul:
+        - flores_eng_Latn-zul_Latn_prompt_1
+        - flores_zul_Latn-eng_Latn_prompt_1
+        - ntrex_eng_Latn-zul_Latn_prompt_1
+        - ntrex_zul_Latn-eng_Latn_prompt_1
+
+  test_all:
+    description: Complete held-out SA CPT test suite (discriminative 5-shot + math 8-shot + translation 5-shot).
+    phases:
+      - test_discriminative
+      - test_math
+      - test_translation

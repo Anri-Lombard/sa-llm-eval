@@ -1,0 +1,6 @@
+include: _sa_val_afrixnli_common.yaml
+task: sa_val_afrixnli_sot_prompt_5
+dataset_name: sot
+doc_to_text: "Based on the given statement, is the following claim 'true', 'false', or 'inconclusive'. \nStatement: {{premise}} \nClaim: {{hypothesis}}"
+doc_to_target: !function utils.xnli_target_tif
+doc_to_choice: ['true', 'inconclusive', 'false']
