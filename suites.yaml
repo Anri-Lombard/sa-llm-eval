@@ -1,4 +1,4 @@
-# South African language evaluation suites for continual pretraining (CPT).
+# South African language model evaluation suites.
 #
 # Conventions:
 # - Validation suites (`val_*`) touch ONLY validation splits (safe for mixture/checkpoint selection).

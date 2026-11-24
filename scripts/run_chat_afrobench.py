@@ -2,7 +2,7 @@
 """Optional chat-template AfroBench evaluator for instruct-tuned (IT) checkpoints.
 
 Use this only when evaluating chat/instruct models (e.g. gemma-3-*-it or SFT checkpoints).
-For base/CPT checkpoints, use scripts/run_lm_eval.py and scripts/eval_mzansi_ppl.py instead.
+For base/CPT checkpoints, use scripts/run_lm_eval.py and scripts/eval_ppl.py instead.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ import json
 import re
 from pathlib import Path
 
-from eval_mzansi_ppl import _load_model, _resolve_dtype
+from eval_ppl import _load_model, _resolve_dtype
 from rescore import bootstrap_ci
 
 LETTERS = "ABCDEFGH"

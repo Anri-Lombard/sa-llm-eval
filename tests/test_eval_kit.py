@@ -12,7 +12,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS_DIR = REPO_ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS_DIR))
 
-import eval_mzansi_ppl as ppl  # noqa: E402
+import eval_ppl as ppl  # noqa: E402
 import rescore  # noqa: E402
 import run_chat_afrobench as chat  # noqa: E402
 import run_lm_eval as runner  # noqa: E402

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Evaluate perplexity and bits per UTF-8 byte on uctnlp/mzansi-text-deduplicated."""
+"""Evaluate per-language perplexity and bits per UTF-8 byte on any HF text dataset.
+
+Defaults to uctnlp/mzansi-text-deduplicated across all 11 official South African languages.
+Pass --corpus / --text-column / --lang-column to score any other Hugging Face text dataset.
+"""
 
 from __future__ import annotations
 
@@ -199,33 +203,37 @@ def format_markdown_table(per_language: dict[str, dict[str, float | int]]) -> st
             f"{m['perplexity']:.3f} | {m['bits_per_utf8_byte']:.4f} | "
             f"{m['tokens_per_1000_utf8_bytes']:.1f} |"
         )
-    sa_only = [m for lang, m in per_language.items() if lang != "eng"]
-    if sa_only:
-        mean_bpb = sum(m["bits_per_utf8_byte"] for m in sa_only) / len(sa_only)
-        geo_ppl = math.exp(sum(math.log(m["perplexity"]) for m in sa_only) / len(sa_only))
-        lines.append(f"| **SA macro (excl. eng)** | - | - | **{geo_ppl:.3f}** | **{mean_bpb:.4f}** | - |")
+    if len(per_language) > 1:
+        non_eng = [m for lang, m in per_language.items() if lang != "eng"]
+        group = non_eng if non_eng else list(per_language.values())
+        label = "Macro (excl. eng)" if non_eng and "eng" in per_language else "Macro"
+        mean_bpb = sum(m["bits_per_utf8_byte"] for m in group) / len(group)
+        geo_ppl = math.exp(sum(math.log(m["perplexity"]) for m in group) / len(group))
+        lines.append(f"| **{label}** | - | - | **{geo_ppl:.3f}** | **{mean_bpb:.4f}** | - |")
     return "\n".join(lines)
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Measure per-language perplexity and bits/UTF-8 byte on MzansiText."
+        description="Measure per-language perplexity and bits/UTF-8 byte on a Hugging Face text dataset."
     )
     parser.add_argument("--model", required=True, help="HF model ID or local checkpoint path.")
     parser.add_argument("--revision", default=None, help="Optional HF model revision.")
+    parser.add_argument("--corpus", default=DEFAULT_CORPUS, help=f"HF dataset path (default: {DEFAULT_CORPUS}).")
+    parser.add_argument("--dataset-config", default=None, help="Optional HF dataset config name.")
+    parser.add_argument("--corpus-revision", default=None, help="Optional HF dataset revision.")
+    parser.add_argument("--split", default="validation", help="Dataset split (default: validation).")
+    parser.add_argument("--text-column", default="text", help="Text column name (default: text).")
+    parser.add_argument(
+        "--lang-column",
+        default="lang",
+        help="Language column name; pass '' to evaluate all rows as a single group (default: lang).",
+    )
     parser.add_argument(
         "--languages",
-        default=",".join(ALL_SA_LANGUAGES),
-        help="Comma-separated language codes (default: all 11 SA languages).",
+        default=None,
+        help="Optional comma-separated language filter (defaults to all 11 SA languages on MzansiText).",
     )
-    parser.add_argument(
-        "--split",
-        choices=("validation", "test"),
-        default="validation",
-        help="Dataset split (default: validation; keep test held out during CPT selection).",
-    )
-    parser.add_argument("--corpus", default=DEFAULT_CORPUS)
-    parser.add_argument("--corpus-revision", default=DEFAULT_CORPUS_REVISION)
     parser.add_argument("--sequence-length", type=int, default=2048)
     parser.add_argument("--batch-size", type=int, default=4)
     parser.add_argument("--max-docs", type=int, default=None, help="Optional per-language doc cap for smoke tests.")
@@ -238,10 +246,9 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    languages = [code.strip() for code in args.languages.split(",") if code.strip()]
-    unknown = sorted(set(languages) - set(ALL_SA_LANGUAGES))
-    if unknown:
-        raise ValueError(f"Unknown language codes: {unknown}. Valid: {ALL_SA_LANGUAGES}")
+    corpus_revision = args.corpus_revision
+    if corpus_revision is None and args.corpus == DEFAULT_CORPUS:
+        corpus_revision = DEFAULT_CORPUS_REVISION
 
     import torch
     from datasets import load_dataset
@@ -259,14 +266,33 @@ def main() -> None:
         raise ValueError("Tokenizer has neither bos_token_id nor eos_token_id")
     pad_token_id = tokenizer.pad_token_id if tokenizer.pad_token_id is not None else prefix_token_id
 
-    corpus = load_dataset(args.corpus, revision=args.corpus_revision, split=args.split)
-    by_lang: dict[str, list[str]] = {lang: [] for lang in languages}
-    wanted = set(languages)
-    for row in corpus:
-        lang = row["lang"]
-        if lang in wanted:
-            if args.max_docs is None or len(by_lang[lang]) < args.max_docs:
-                by_lang[lang].append(row["text"])
+    corpus = load_dataset(args.corpus, args.dataset_config, revision=corpus_revision, split=args.split)
+
+    by_lang: dict[str, list[str]] = {}
+    if not args.lang_column:
+        texts = list(corpus[args.text_column])
+        by_lang["all"] = texts[: args.max_docs] if args.max_docs is not None else texts
+        languages = ["all"]
+    else:
+        if args.languages:
+            languages = [code.strip() for code in args.languages.split(",") if code.strip()]
+            wanted: set[str] | None = set(languages)
+        elif args.corpus == DEFAULT_CORPUS:
+            languages = list(ALL_SA_LANGUAGES)
+            wanted = set(languages)
+        else:
+            languages = []
+            wanted = None
+
+        for row in corpus:
+            lang = str(row[args.lang_column])
+            if wanted is not None and lang not in wanted:
+                continue
+            bucket = by_lang.setdefault(lang, [])
+            if args.max_docs is None or len(bucket) < args.max_docs:
+                bucket.append(row[args.text_column])
+        if not languages:
+            languages = sorted(by_lang.keys())
 
     started = time.monotonic()
     model = _load_model(
@@ -279,7 +305,7 @@ def main() -> None:
 
     per_language: dict[str, dict[str, float | int]] = {}
     for lang in languages:
-        texts = by_lang[lang]
+        texts = by_lang.get(lang, [])
         if not texts:
             raise RuntimeError(f"No documents found for language={lang} in {args.corpus}:{args.split}")
         per_language[lang] = evaluate_language(
@@ -306,7 +332,8 @@ def main() -> None:
         "model": args.model,
         "revision": args.revision,
         "corpus": args.corpus,
-        "corpus_revision": args.corpus_revision,
+        "dataset_config": args.dataset_config,
+        "corpus_revision": corpus_revision,
         "split": args.split,
         "held_out_test_accessed": args.split == "test",
         "sequence_length": args.sequence_length,
